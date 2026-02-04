@@ -1,0 +1,101 @@
+cd 'C:/Users/yuxua/Desktop/Image Processing/Lab 1/sketch_jan27a'
+
+Q4 Loading of images into Octave
+img = imread('ECE516cam002.ppm');
+imshow(img);
+
+Q5 demonstrate ability to compile and run compragram.cc using mkoctfile
+mkoctfile comparagram.cc
+
+Q6 demonstrate comparasum (sum of comparagrams)
+a0=imread("ECE516cam001.ppm");
+a1=imread("ECE516cam002.ppm");
+a2=imread("ECE516cam004.ppm");
+a3=imread("ECE516cam008.ppm");
+a4=imread("ECE516cam016.ppm");
+a5=imread("ECE516cam032.ppm");
+a6=imread("ECE516cam064.ppm");
+a7=imread("ECE516cam128.ppm");
+a8=imread("ECE516cam256.ppm");
+a9=imread("ECE516cam512.ppm");
+
+b0=double(a0(:,:,2));
+b1=double(a1(:,:,2));
+b2=double(a2(:,:,2));
+b3=double(a3(:,:,2));
+b4=double(a4(:,:,2));
+b5=double(a5(:,:,2));
+b6=double(a6(:,:,2));
+b7=double(a7(:,:,2));
+b8=double(a8(:,:,2));
+b9=double(a9(:,:,2));
+
+c1=comparagram(b0,b1);
+c2=comparagram(b1,b2);
+c3=comparagram(b2,b3);
+c4=comparagram(b3,b4);
+c5=comparagram(b4,b5);
+c6=comparagram(b5,b6);
+c7=comparagram(b6,b7);
+c8=comparagram(b7,b8);
+c9=comparagram(b8,b9);
+
+clf
+subplot(191); imshow(c1)
+subplot(192); imshow(c2)
+subplot(193); imshow(c3)
+subplot(194); imshow(c4)
+subplot(195); imshow(c5)
+subplot(196); imshow(c6)
+subplot(197); imshow(c7)
+subplot(198); imshow(c8)
+subplot(199); imshow(c9)
+print comparagrams.pdf
+
+%in this case there's clipping on the last image, so only the first 8 are good:
+c=c1+c2+c3+c4+c5+c6+c7+c8;
+clf
+imshow(c)
+hold on;
+
+[r, c] = find(c > 0); %get the indices of c > 0
+p = polyfit(c, r, 1); %p is a vector that y=p(1)x + p(2)
+
+x = 1:256;
+y = polyval(p, x);
+plot(x, y, 'r', 'LineWidth', 1.5);
+title(sprintf('Slope = %.3f', p(1))); % %f = float, .3 = 3digits after decimal
+hold off;
+
+print comparasum.pdf
+
+Q7 demonstrate best-fit line and determine slope (linear regression)
+% 1. Load your data
+x = double(imread('ECE516cam008.ppm'));
+y = double(imread('ECE516cam016.ppm'));
+
+% 2. Flatten and filter data to remove saturated pixels (Y < 240)
+valid_idx = find(y < 240 & x < 120); 
+x_linear = x(valid_idx);
+y_linear = y(valid_idx);
+
+% 3. Calculate Linear Regression (Requirement 7)
+% p(1) will be the slope (m), p(2) will be the intercept (c)
+p = polyfit(x_linear, y_linear, 1); 
+
+% 4. Display the results
+fprintf('The best-fit slope (m) is: %.2f\n', p(1));
+fprintf('The intercept (c) is: %.2f\n', p(2));
+
+% 5. Plot the best-fit line over your dots
+figure;
+plot(x(:), y(:), '.', 'Color', [0.7 0.7 0.7]); % Original dots in light gray
+hold on;
+plot(x_linear, p(1)*x_linear + p(2), 'r', 'LineWidth', 2); % Best-fit line in red
+xlabel('Intensity of f (Exposure=8)');
+ylabel('Intensity of f(2t) (Exposure=16)');
+title(['Linear Regression: Slope = ', num2str(p(1))]);
+grid on;
+
+
+
